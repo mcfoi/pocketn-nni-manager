@@ -47,7 +47,8 @@ $ source .venv/bin/activate
 $ pip install -U pip setuptools setuptools_scm tox
 # ... edit setup.cfg to add dependencies ...
 
-# To define a VERSION (git is REQUIRED):
+# To define a VERSION before building => set a Git TAG (git is REQUIRED) that will be used by 'setuptools-scm':
+# [https://pyscaffold.org/en/stable/faq.html]
 $ git tag v1.2.3
 
 # To install an EDITABLE version:
@@ -59,8 +60,22 @@ $ tox -e build
 # or (does not crete sbuild)
 $ python -m build --wheel
 
+
 A longer description of your project goes here...
 
+
+DOCKER
+
+Image can be created 
+- once .whl file has been built (so is available in `dist` folder) 
+- `Dockerfile` has been updated to copy the .whl file in the image (always done as whole `dist` is copied)
+- and `requirements.txt` installs it <= CHANGE VERSION NUMBER HERE TO MATCH GIT TAG>
+
+```docker build . -t cassandratech/pocketn-nni-manager:1.0.1```
+
+The created image can be run locally using:<br/>
+
+```docker run --rm --name pocketn-nni-manager -p 8501:8501 cassandratech/pocketn-nni-manager:1.0.1```
 
 .. _pyscaffold-notes:
 

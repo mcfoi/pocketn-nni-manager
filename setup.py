@@ -12,6 +12,9 @@ from setuptools import setup
 if __name__ == "__main__":
     try:
         setup(use_scm_version={"version_scheme": "no-guess-dev"})
+        # To skip using "setuptools-scm", just run:
+        # setup()
+        # and remove the [tool.setuptools_scm] section of pyproject.toml
     except:  # noqa
         print(
             "\n\nAn error occurred while building the project, "

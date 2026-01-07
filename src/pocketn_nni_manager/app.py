@@ -4,7 +4,7 @@ console script. To run this script uncomment the following lines in the
 ``[options.entry_points]`` section in ``setup.cfg``::
 
     console_scripts =
-         fibonacci = pocketn_nni_manager.skeleton:run
+         fibonacci = pocketn_nni_manager.app:run
 
 Then run ``pip install .`` (or ``pip install -e .`` for editable mode)
 which will install the command ``fibonacci`` inside your current environment.
@@ -36,7 +36,7 @@ _logger = logging.getLogger(__name__)
 # ---- Python API ----
 # The functions defined in this section can be imported by users in their
 # Python scripts/interactive interpreter, e.g. via
-# `from pocketn_nni_manager.skeleton import fib`,
+# `from pocketn_nni_manager.app import fib`,
 # when using this Python module as a library.
 
 
@@ -135,6 +135,14 @@ def run():
     main(sys.argv[1:])
 
 
+def runApp():
+    """ Calls :func:`mainApp`"""
+    mainApp()
+
+def mainApp():
+    import streamlit as st
+    st.title('PocketN - NNI Manager')
+
 if __name__ == "__main__":
     # ^  This is a guard statement that will prevent the following code from
     #    being executed in the case someone imports this file instead of
@@ -144,6 +152,7 @@ if __name__ == "__main__":
     # After installing your project with pip, users can also run your Python
     # modules as scripts via the ``-m`` flag, as defined in PEP 338::
     #
-    #     python -m pocketn_nni_manager.skeleton 42
+    #     python -m pocketn_nni_manager.app 42
     #
-    run()
+    # run()
+    runApp()

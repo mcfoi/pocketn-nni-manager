@@ -1,6 +1,6 @@
 import pytest
 
-from pocketn_nni_manager.skeleton import fib, main
+from pocketn_nni_manager.streamlit_app import fib, main
 
 __author__ = "Marco Foi"
 __copyright__ = "Marco Foi"
