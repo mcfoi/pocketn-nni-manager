@@ -56,7 +56,7 @@ $ tox
 
 # To build a .whl for distribution:
 $ tox -e build
-# or
+# or (does not crete sbuild)
 $ python -m build --wheel
 
 A longer description of your project goes here...
