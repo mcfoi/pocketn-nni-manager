@@ -23,6 +23,7 @@ References:
 import argparse
 import logging
 import sys
+from time import sleep
 
 from pocketn_nni_manager import __version__
 
@@ -142,6 +143,29 @@ def runApp():
 def mainApp():
     import streamlit as st
     st.title('PocketN - NNI Manager')
+    # Define the pages
+    main_page = st.Page("pages/page_main.py", title="Main Page", icon="🎈")
+    list_varieties_page = st.Page("pages/page_list_varieties.py", title="Lista Varietà", icon="❄️")
+
+    # Set up navigation
+    # pg = st.navigation([main_page, list_varieties_page])
+
+    # Run the selected page
+    # pg.run()
+
+    st.write("Please log in to continue (username `test`, password `test`).")
+
+    username = st.text_input("Username")
+    password = st.text_input("Password", type="password")
+
+    if st.button("Log in", type="primary"):
+        if username == "test" and password == "test":
+            st.session_state.logged_in = True
+            st.success("Logged in successfully!")
+            sleep(0.5)
+            st.switch_page("pages\\page_list_varieties.py")
+        else:
+            st.error("Incorrect username or password")
 
 if __name__ == "__main__":
     # ^  This is a guard statement that will prevent the following code from

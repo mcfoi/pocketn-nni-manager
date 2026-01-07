@@ -51,7 +51,7 @@ $ pip install -U pip setuptools setuptools_scm tox
 # [https://pyscaffold.org/en/stable/faq.html]
 $ git tag v1.2.3
 
-# To install an EDITABLE version:
+# To install an EDITABLE version during DEVELOPMENT (this will also install all requirements from section 'install_requires' of `setup.cfg``):
 $ pip install -e .
 $ tox
 
@@ -66,8 +66,8 @@ A longer description of your project goes here...
 
 DOCKER
 
-Image can be created 
-- once .whl file has been built (so is available in `dist` folder) 
+Image can be created
+- once .whl file has been built (so is available in `dist` folder)
 - `Dockerfile` has been updated to copy the .whl file in the image (always done as whole `dist` is copied)
 - and `requirements.txt` installs it <= CHANGE VERSION NUMBER HERE TO MATCH GIT TAG>
 
