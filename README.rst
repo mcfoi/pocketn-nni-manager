@@ -44,7 +44,7 @@ $ putup -i pocketn-nni-manager
 $ cd pocketn-nni-manager
 $ python -m venv .venv
 $ source .venv/bin/activate
-$ pip install -U pip setuptools setuptools_scm tox
+$ pip install -U pip setuptools setuptools_scm build tox
 # ... edit setup.cfg to add dependencies ...
 
 # To define a VERSION before building => set a Git TAG (git is REQUIRED) that will be used by 'setuptools-scm':
