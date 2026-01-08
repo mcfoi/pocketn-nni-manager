@@ -22,6 +22,7 @@ References:
 
 from __future__ import annotations
 import argparse
+from functools import partial
 import logging
 from pathlib import Path
 import sys
@@ -197,14 +198,19 @@ def logout():
     sleep(1.5)
     st.switch_page(login_page)
 
-list_varieties_page = st.Page(page_list.listPage, title="Lista Varietà", icon="🌾")
-edit_varieties_page = st.Page(page_edit.editPage, title="Modifica Varietà", icon="🌾")
-# login_page = st.Page("page_login.py", title="Login Page", icon="💎", default=True)
+def setup_db():
+    from pocketn_nni_manager.dbhelper import DbHelper
+    DbHelper.createDb()
+
+list_varieties_page = st.Page(page_list.listPage, url_path=None, title="Lista Varietà", icon="🌾")
+edit_varieties_page = st.Page(page_edit.editPage, url_path=None, title="Modifica Varietà", icon="🌾")
 login_page = st.Page(loginPage, title="NNI Manager - Login", icon="🌾", default=True)
 
 def mainApp():
     setup_logging(logging.INFO)
+    setup_db()
 
+    st.set_page_config(layout="wide")
     pages = []
     pg = None
 
