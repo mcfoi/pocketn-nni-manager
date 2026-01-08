@@ -1,3 +1,0 @@
-
-# Editable install with no version control (pocketn-nni-manager==1.0.1.post1.dev0+g3304e8392.d20260107)
--e /home/mcfoi/pocketn-nni-manager/src/pocketn-nni-manager

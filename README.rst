@@ -71,7 +71,7 @@ Image can be created
 - `Dockerfile` has been updated to copy the .whl file in the image (always done as whole `dist` is copied)
 - and `requirements.txt` installs it <= CHANGE VERSION NUMBER HERE TO MATCH GIT TAG>
 
-```docker build . -t cassandratech/pocketn-nni-manager:1.0.4 -t cassandratech/pocketn-nni-manager:latest```
+```docker build . -t cassandratech/pocketn-nni-manager:1.0.5 -t cassandratech/pocketn-nni-manager:latest```
 
 The created image can be run locally using:<br/>
 

@@ -30,7 +30,7 @@ import streamlit as st
 from streamlit.runtime.scriptrunner import get_script_run_ctx
 from streamlit.source_util import PageInfo
 
-from pocketn_nni_manager import __version__, page_login
+from pocketn_nni_manager import __version__, page_login, page_list, page_edit
 
 __author__ = "Marco Foi"
 __copyright__ = "Marco Foi"
@@ -158,7 +158,7 @@ def get_current_page_name():
 
 def loginPage():
     st.title('PocketN - NNI Manager')
-    st.write("Please log in to continue (username `testo`, password `test`).")
+    st.write("Please log in to continue (username `test`, password `test`).")
     username = st.text_input("Username")
     password = st.text_input("Password", type="password")
     if not st.session_state.get("logged_in", False):
@@ -177,18 +177,28 @@ def loginPage():
             st.session_state.logged_in = False
             st.info("Logged out successfully!")
             _logger.info(f"Logged out successfully!")
-            sleep(0.5)
+            sleep(1.5)
             logout()
+
+# def listPage():
+#     # List page content
+#     st.markdown("## Lista varietà 🎈")
+#     # st.sidebar.markdown("# Pagina varietà🎈")
+
+# def editPage():
+#     # Main page content
+#     st.markdown("## Modifica varietà 🎈")
+#     # st.sidebar.markdown("# Pagina varietà🎈")
 
 def logout():
     st.session_state.logged_in = False
     st.info("Logged out successfully!")
     _logger.info(f"Logged out successfully!")
-    sleep(0.5)
+    sleep(1.5)
     st.switch_page(login_page)
 
-list_varieties_page = st.Page("page_list.py", title="Lista Varietà", icon="🌾")
-edit_varieties_page = st.Page("page_edit.py", title="Modifica Varietà", icon="🌾")
+list_varieties_page = st.Page(page_list.listPage, title="Lista Varietà", icon="🌾")
+edit_varieties_page = st.Page(page_edit.editPage, title="Modifica Varietà", icon="🌾")
 # login_page = st.Page("page_login.py", title="Login Page", icon="💎", default=True)
 login_page = st.Page(loginPage, title="NNI Manager - Login", icon="🌾", default=True)
 

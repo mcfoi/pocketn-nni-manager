@@ -1,5 +1,6 @@
 import streamlit as st
 
-# Main page content
-st.markdown("# Modifica varietà 🎈")
-# st.sidebar.markdown("# Pagina varietà🎈")
+def editPage():
+    # Main page content
+    st.markdown("## Modifica varietà 🎈")
+    # st.sidebar.markdown("# Pagina varietà🎈")
