@@ -1,5 +1,5 @@
 import streamlit as st
 
-# Main page content
-st.markdown("# Pagina varietà 🎈")
+# List page content
+st.markdown("# Lista varietà 🎈")
 # st.sidebar.markdown("# Pagina varietà🎈")

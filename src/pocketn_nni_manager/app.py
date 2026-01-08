@@ -20,12 +20,17 @@ References:
     - https://pip.pypa.io/en/stable/reference/pip_install
 """
 
+from __future__ import annotations
 import argparse
 import logging
+from pathlib import Path
 import sys
 from time import sleep
+import streamlit as st
+from streamlit.runtime.scriptrunner import get_script_run_ctx
+from streamlit.source_util import PageInfo
 
-from pocketn_nni_manager import __version__
+from pocketn_nni_manager import __version__, page_login
 
 __author__ = "Marco Foi"
 __copyright__ = "Marco Foi"
@@ -105,7 +110,7 @@ def setup_logging(loglevel):
     Args:
       loglevel (int): minimum loglevel for emitting messages
     """
-    logformat = "[%(asctime)s] %(levelname)s:%(name)s:%(message)s"
+    logformat = "[%(asctime)s] %(levelname)s:%(name)s: %(message)s"
     logging.basicConfig(
         level=loglevel, stream=sys.stdout, format=logformat, datefmt="%Y-%m-%d %H:%M:%S"
     )
@@ -136,36 +141,84 @@ def run():
     main(sys.argv[1:])
 
 
+# app_page = st.Page("app.py", title="NNI Manager - Login", icon="🌾", default=True)
+
 def runApp():
     """ Calls :func:`mainApp`"""
     mainApp()
 
-def mainApp():
-    import streamlit as st
+def get_current_page_name():
+    ctx = get_script_run_ctx()
+    # _logger.info(f"Current context is: {ctx}")
+    if ctx is None:
+        raise RuntimeError("Couldn't get script context")
+    page_name = Path(ctx.main_script_path).stem
+    _logger.info(f"Current page name: {page_name}")
+    return page_name
+
+def loginPage():
     st.title('PocketN - NNI Manager')
-    # Define the pages
-    main_page = st.Page("pages/page_main.py", title="Main Page", icon="🎈")
-    list_varieties_page = st.Page("pages/page_list_varieties.py", title="Lista Varietà", icon="❄️")
-
-    # Set up navigation
-    # pg = st.navigation([main_page, list_varieties_page])
-
-    # Run the selected page
-    # pg.run()
-
-    st.write("Please log in to continue (username `test`, password `test`).")
-
+    st.write("Please log in to continue (username `testo`, password `test`).")
     username = st.text_input("Username")
     password = st.text_input("Password", type="password")
-
-    if st.button("Log in", type="primary"):
-        if username == "test" and password == "test":
-            st.session_state.logged_in = True
-            st.success("Logged in successfully!")
-            sleep(0.5)
-            st.switch_page("pages\\page_list_varieties.py")
+    if not st.session_state.get("logged_in", False):
+        if st.button("Log in", type="primary"):
+            if username == "test" and password == "test":
+                st.session_state.logged_in = True
+                st.success("Logged in successfully!")
+                sleep(0.5)
+                st.switch_page(list_varieties_page)
+            else:
+                st.error("Incorrect username or password")
         else:
-            st.error("Incorrect username or password")
+            _logger.info(f"Login button not pressed yet.")
+    else:
+        if st.button("Log out", type="primary"):
+            st.session_state.logged_in = False
+            st.info("Logged out successfully!")
+            _logger.info(f"Logged out successfully!")
+            sleep(0.5)
+            logout()
+
+def logout():
+    st.session_state.logged_in = False
+    st.info("Logged out successfully!")
+    _logger.info(f"Logged out successfully!")
+    sleep(0.5)
+    st.switch_page(login_page)
+
+list_varieties_page = st.Page("page_list.py", title="Lista Varietà", icon="🌾")
+edit_varieties_page = st.Page("page_edit.py", title="Modifica Varietà", icon="🌾")
+# login_page = st.Page("page_login.py", title="Login Page", icon="💎", default=True)
+login_page = st.Page(loginPage, title="NNI Manager - Login", icon="🌾", default=True)
+
+def mainApp():
+    setup_logging(logging.INFO)
+
+    pages = []
+    pg = None
+
+    with st.sidebar:
+        _logger.info(f"Creating Navigation menu")
+        if st.session_state.get("logged_in", False):
+            _logger.info(f"Utente loggato, mostro sidebar completa.")
+            pages.append(list_varieties_page)
+            pages.append(edit_varieties_page)
+            pg = st.navigation(pages, position="top")
+            st.title(" NNI Manager")
+            st.subheader("🌾 for PocketN 🌾")
+            if st.button("Log out"):
+                logout()
+        else:
+            _logger.info(f"Utente NON loggato: non effettuo la navigazione che bloccherebbe la creazione della pagina di login.")
+            pages.append(login_page)
+            pg = st.navigation(pages)
+
+    if (pg):
+        pg.run()
+
+
+
 
 if __name__ == "__main__":
     # ^  This is a guard statement that will prevent the following code from
