@@ -1,4 +1,5 @@
 import sqlite3
+import streamlit as st
 import pandas as pd
 
 class Varietà(object):
@@ -7,6 +8,10 @@ class Varietà(object):
         self.name = name
         self.m = m
         self.q = q
+
+@st.cache_resource
+def getInstance():
+    return DbHelper()
 
 class DbHelper:
 
@@ -32,35 +37,41 @@ class DbHelper:
         else:
             print('varieties Table found!')
             DbHelper.hasTable = True
-        conn.close()
+        cursor.close()
 
     def __init__(self):
         if not DbHelper.hasTable:
             DbHelper.createDb()
             DbHelper.hasTable = True
-        if (not hasattr(self, 'cursor')) or (self.cursor is None):
-            self.setup()
-
-    def setup(self) -> sqlite3.Cursor:
         if (not hasattr(self, 'conn')) or (self.conn is None):
-            self.conn = sqlite3.connect('/tmp/nni_manager.db')
-        if (not hasattr(self, 'cursor')) or (self.cursor is None):
-            self.cursor = self.conn.cursor()
-        return self.cursor
+            self._setup()
+
+    def _setup(self):
+        self.conn = sqlite3.connect('/tmp/nni_manager.db', check_same_thread=False)
+        # if (not hasattr(self, 'cursor')) or (self.cursor is None):
+        #     self.cursor = self.conn.cursor()
+
+    def execute(self, sql_update):
+        cursor = self.conn.cursor()
+        cursor.execute(sql_update)
+        self.conn.commit()
+        cursor.close()
 
     def close(self):
-        self.cursor.close()
+        self.conn.commit()
+        # self.cursor.close()
         self.conn.close()
 
     def getVarietiesCursor(self) -> sqlite3.Cursor:
-        return self.cursor.execute("SELECT id, name, m, q FROM varieties;")
+        return self.conn.execute("SELECT * FROM varieties;")
 
-    def getVarietiesDataframe(self) -> pd.DataFrame:
-        df = pd.read_sql_query("SELECT id, name, m, q FROM varieties;", self.conn)
+    def getVarietiesPdDataframe(self) -> pd.DataFrame:
+        df = pd.read_sql_query("SELECT * FROM varieties;", self.conn)
         return df
 
     def getVarieties(self) -> list[Varietà]:
         cur = self.getVarietiesCursor()
         rows = cur.fetchall()
+        cur.close()
         varieties = [Varietà(*row) for row in rows]
         return varieties
