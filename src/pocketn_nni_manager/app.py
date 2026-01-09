@@ -181,16 +181,6 @@ def loginPage():
             sleep(1.5)
             logout()
 
-# def listPage():
-#     # List page content
-#     st.markdown("## Lista varietà 🎈")
-#     # st.sidebar.markdown("# Pagina varietà🎈")
-
-# def editPage():
-#     # Main page content
-#     st.markdown("## Modifica varietà 🎈")
-#     # st.sidebar.markdown("# Pagina varietà🎈")
-
 def logout():
     st.session_state.logged_in = False
     st.info("Logged out successfully!")
@@ -202,9 +192,13 @@ def setup_db():
     from pocketn_nni_manager.dbhelper import DbHelper
     DbHelper.createDb()
 
+
+
 list_varieties_page = st.Page(page_list.listPage, url_path=None, title="Lista Varietà", icon="🌾")
 edit_varieties_page = st.Page(page_edit.editPage, url_path=None, title="Modifica Varietà", icon="🌾")
 login_page = st.Page(loginPage, title="NNI Manager - Login", icon="🌾", default=True)
+
+
 
 def mainApp():
     setup_logging(logging.INFO)
@@ -213,6 +207,8 @@ def mainApp():
     st.set_page_config(layout="wide")
     pages = []
     pg = None
+
+    st.markdown("Scarica: [varieties.csv](app/static/varieties.csv)")
 
     with st.sidebar:
         _logger.info(f"Creating Navigation menu")

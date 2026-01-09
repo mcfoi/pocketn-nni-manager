@@ -15,7 +15,19 @@ def getInstance():
 
 class DbHelper:
 
+    tblName_Varieties = 'varieties'
     hasTable : bool = False
+
+    def _get_df_from_csv(self, filename: str) -> pd.DataFrame:
+        rows = pd.read_csv(filename)
+        return rows
+
+    def _get_sql_list_from_df(self, rows: pd.DataFrame) -> list[str]:
+        sql_list = []
+        varieties = [Varietà(rows['id'][i], rows['name'][i], rows['m'][i], rows['q'][i]) for i in range(len(rows['id']))]
+        for v in varieties:
+            sql_list.append(f"INSERT INTO varieties (id, name, m, q) VALUES ({v.id}, '{v.name}', {v.m}, {v.q});")
+        return sql_list
 
     @staticmethod
     def createDb():
@@ -23,15 +35,14 @@ class DbHelper:
             return
         conn = sqlite3.connect('/tmp/nni_manager.db')  # Creates a new database file if it doesn’t exist
         cursor = conn.cursor()
-        tblName = 'varieties'
-        listOfTables = cursor.execute(f"SELECT name FROM sqlite_master WHERE type='table' AND name='{tblName}';").fetchall()
+        listOfTables = cursor.execute(f"SELECT name FROM sqlite_master WHERE type='table' AND name='{DbHelper.tblName_Varieties}';").fetchall()
         if listOfTables == []:
             print('varieties Table not found!')
-            cursor.execute(f"CREATE TABLE {tblName}(id integer primary key autoincrement, name VARCHAR(255), m double, q double);")
+            cursor.execute(f"CREATE TABLE {DbHelper.tblName_Varieties}(id integer primary key autoincrement, name VARCHAR(255), m double, q double);")
             conn.commit()
-            cursor.execute(f"INSERT INTO {tblName}(name, m, q) VALUES (?, ?, ?);", ("Riso A", 10.02, 1.05))
-            cursor.execute(f"INSERT INTO {tblName}(name, m, q) VALUES (?, ?, ?);", ("Riso B", 3.70, 2.05))
-            cursor.execute(f"INSERT INTO {tblName}(name, m, q) VALUES (?, ?, ?);", ("Riso C", -5.58, 3.17))
+            cursor.execute(f"INSERT INTO {DbHelper.tblName_Varieties}(name, m, q) VALUES (?, ?, ?);", ("Riso A", 10.02, 1.05))
+            cursor.execute(f"INSERT INTO {DbHelper.tblName_Varieties}(name, m, q) VALUES (?, ?, ?);", ("Riso B", 3.70, 2.05))
+            cursor.execute(f"INSERT INTO {DbHelper.tblName_Varieties}(name, m, q) VALUES (?, ?, ?);", ("Riso C", -5.58, 3.17))
             conn.commit()
             DbHelper.hasTable = True
         else:
