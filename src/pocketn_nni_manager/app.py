@@ -24,6 +24,7 @@ from __future__ import annotations
 import argparse
 from functools import partial
 import logging
+import os
 from pathlib import Path
 import sys
 from time import sleep
@@ -203,6 +204,8 @@ login_page = st.Page(loginPage, title="NNI Manager - Login", icon="🌾", defaul
 def mainApp():
     setup_logging(logging.INFO)
     setup_db()
+
+    dataDir = os.getenv("STREAMLIT_DATA_DIR", "/tmp")
 
     st.set_page_config(layout="wide")
     pages = []
