@@ -12,10 +12,9 @@ def editPage():
     # st.sidebar.markdown("### ➡ Modifica varietà")
 
     db = getInstance()
-    varList: list[Varietà] = db.getVarieties()
-    varCur = db.getVarietiesCursor()
+    # varList: list[Varietà] = db.getVarieties()
+    # varCur = db.getVarietiesCursor()
     serverPdDf = db.getVarietiesPdDataframe()
-    # serverPdDf.set_index('id', inplace=True)
     hash_before = pd.util.hash_pandas_object(serverPdDf)
     _logger.info(f"hash_before :\n{hash_before}")
     userPdDf = st.data_editor(serverPdDf,
@@ -29,16 +28,12 @@ def editPage():
             "nni_cap": st.column_config.NumberColumn("Limite NNI",format="%.3f",step=0.010),
         },
         disabled=["id"],
-        on_change=persistChanges,
-        # args=(varDf,_logger),
+        on_change=onEditorDataChanged,
         kwargs={"serverPdDf": serverPdDf, "logger": _logger}
         )
     hash_after = pd.util.hash_pandas_object(userPdDf)
     _logger.info(f"hash_after :\n{hash_after}")
     _logger.info(f"OUTPUT data is (might be unmodified)\n{userPdDf}")
-    # Access the changes in st.session_state after user interaction
-    changes = st.session_state["varieties_editor"]
-
     _logger.info(f"Displayed {len(serverPdDf)} varieties.")
     _logger.info(f"= = = = = = = =")
 
@@ -78,7 +73,6 @@ def salvaModifiche(**kwargs):
         db = getInstance()
         added_ids = []
         for row in changes["added_rows"]:
-            # row = changes["added_rows"][addedRowPosition]
             name = row.get('name', '')
             m = row.get('m', 0)
             q = row.get('q', 0)
@@ -88,7 +82,6 @@ def salvaModifiche(**kwargs):
             _cur = db.conn.execute("SELECT last_insert_rowid()")
             added_ids.append(_cur.fetchone()[0])
         st.success(f"Varietà con ID {', '.join(map(str, added_ids))} aggiunt{'a' if len(added_ids) == 1 else 'e'} correttamente.")
-        pass
 
     if changes["deleted_rows"]:
         _logger.info("#### Deleted Rows:\n")
@@ -101,9 +94,8 @@ def salvaModifiche(**kwargs):
             db.execute(sql_delete)
             removed_ids.append(id)
         st.success(f"Varietà con ID {', '.join(map(str, removed_ids))} eliminat{'a' if len(removed_ids) == 1 else 'e'} correttamente.")
-        pass
 
-def persistChanges(*args, **kwargs):
+def onEditorDataChanged(**kwargs):
     _logger = kwargs["logger"]
     serverPdDf = kwargs["serverPdDf"]
     _logger.info(f"ORIGINAL Dataframe data in persistChanges() is\n{serverPdDf}")
