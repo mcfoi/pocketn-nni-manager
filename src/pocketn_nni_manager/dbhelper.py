@@ -1,3 +1,4 @@
+import logging
 import os
 import sqlite3
 import streamlit as st
@@ -69,19 +70,19 @@ class DbHelper:
             self._setup()
 
     def _setup(self):
-        self.conn = sqlite3.connect('/tmp/nni_manager.db', check_same_thread=False)
-        # if (not hasattr(self, 'cursor')) or (self.cursor is None):
-        #     self.cursor = self.conn.cursor()
+        dataDir = os.getenv("STREAMLIT_DATA_DIR", "/tmp")
+        self.conn = sqlite3.connect(f'{dataDir}/nni_manager.db', check_same_thread=False)
 
     def execute(self, sql_update):
+        _logger = logging.getLogger("NNIManager")
         cursor = self.conn.cursor()
-        cursor.execute(sql_update)
+        cur = cursor.execute(sql_update)
         self.conn.commit()
         cursor.close()
+        _logger.info(f"Executed SQL result: {cur.fetchone()[0]}")
 
     def close(self):
         self.conn.commit()
-        # self.cursor.close()
         self.conn.close()
 
     def getVarietiesCursor(self) -> sqlite3.Cursor:

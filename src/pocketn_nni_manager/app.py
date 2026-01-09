@@ -38,7 +38,7 @@ __author__ = "Marco Foi"
 __copyright__ = "Marco Foi"
 __license__ = "MIT"
 
-_logger = logging.getLogger(__name__)
+_logger = logging.getLogger("NNIManager")
 
 
 # ---- Python API ----
@@ -47,22 +47,7 @@ _logger = logging.getLogger(__name__)
 # `from pocketn_nni_manager.app import fib`,
 # when using this Python module as a library.
 
-
-def fib(n):
-    """Fibonacci example function
-
-    Args:
-      n (int): integer
-
-    Returns:
-      int: n-th Fibonacci number
-    """
-    assert n > 0
-    a, b = 1, 1
-    for _i in range(n - 1):
-        a, b = b, a + b
-    return a
-
+# ...
 
 # ---- CLI ----
 # The functions defined in this section are wrappers around the main Python
@@ -112,38 +97,10 @@ def setup_logging(loglevel):
     Args:
       loglevel (int): minimum loglevel for emitting messages
     """
-    logformat = "[%(asctime)s] %(levelname)s:%(name)s: %(message)s"
+    logformat = "[%(asctime)s] %(levelname)s: %(name)s: %(message)s"
     logging.basicConfig(
         level=loglevel, stream=sys.stdout, format=logformat, datefmt="%Y-%m-%d %H:%M:%S"
     )
-
-
-def main(args):
-    """Wrapper allowing :func:`fib` to be called with string arguments in a CLI fashion
-
-    Instead of returning the value from :func:`fib`, it prints the result to the
-    ``stdout`` in a nicely formatted message.
-
-    Args:
-      args (List[str]): command line parameters as list of strings
-          (for example  ``["--verbose", "42"]``).
-    """
-    args = parse_args(args)
-    setup_logging(args.loglevel)
-    _logger.debug("Starting crazy calculations...")
-    print(f"The {args.n}-th Fibonacci number is {fib(args.n)}")
-    _logger.info("Script ends here")
-
-
-def run():
-    """Calls :func:`main` passing the CLI arguments extracted from :obj:`sys.argv`
-
-    This function can be used as entry point to create console scripts with setuptools.
-    """
-    main(sys.argv[1:])
-
-
-# app_page = st.Page("app.py", title="NNI Manager - Login", icon="🌾", default=True)
 
 def runApp():
     """ Calls :func:`mainApp`"""

@@ -5,7 +5,7 @@ import streamlit as st
 from pocketn_nni_manager.dbhelper import DbHelper, Varietà, getInstance
 
 def editPage():
-    _logger = logging.getLogger(__name__)
+    _logger = logging.getLogger("NNIManager")
     # List page content
     st.markdown("## Modifica varietà")
     # st.sidebar.markdown("###    Lista varietà")
@@ -17,7 +17,7 @@ def editPage():
     serverPdDf = db.getVarietiesPdDataframe()
     # serverPdDf.set_index('id', inplace=True)
     hash_before = pd.util.hash_pandas_object(serverPdDf)
-    _logger.info(f"hash_before : {hash_before}")
+    _logger.info(f"hash_before :\n{hash_before}")
     userPdDf = st.data_editor(serverPdDf,
         key="varieties_editor",
         num_rows="dynamic",
@@ -26,6 +26,7 @@ def editPage():
             "name": "Varietà (name)",
             "m": st.column_config.NumberColumn("Inclinazione (m)",format="%.3f",step=0.010),
             "q": st.column_config.NumberColumn("Intercetta (q)",format="%.3f",step=0.010),
+            "nni_cap": st.column_config.NumberColumn("Limite NNI",format="%.3f",step=0.010),
         },
         disabled=["id"],
         on_change=persistChanges,
@@ -33,19 +34,11 @@ def editPage():
         kwargs={"serverPdDf": serverPdDf, "logger": _logger}
         )
     hash_after = pd.util.hash_pandas_object(userPdDf)
-    _logger.info(f"hash_after : {hash_after}")
+    _logger.info(f"hash_after :\n{hash_after}")
     _logger.info(f"OUTPUT data is (might be unmodified)\n{userPdDf}")
     # Access the changes in st.session_state after user interaction
     changes = st.session_state["varieties_editor"]
-    if changes["edited_rows"]:
-        _logger.info("#### Edited Rows:\n")
-        _logger.info(changes["edited_rows"])
-    if changes["added_rows"]:
-        _logger.info("#### Added Rows:\n")
-        _logger.info(changes["added_rows"])
-    if changes["deleted_rows"]:
-        _logger.info("#### Deleted Rows:\n")
-        _logger.info(changes["deleted_rows"])
+
     _logger.info(f"Displayed {len(serverPdDf)} varieties.")
     _logger.info(f"= = = = = = = =")
 
@@ -80,6 +73,34 @@ def salvaModifiche(**kwargs):
         st.success(f"Varietà con ID {', '.join(map(str, updated_ids))} aggiornat{'a' if len(updated_ids) == 1 else 'e'} correttamente.")
 
     if changes["added_rows"]:
+        _logger.info("#### Added Rows:\n")
+        _logger.info(changes["added_rows"])
+        db = getInstance()
+        added_ids = []
+        for row in changes["added_rows"]:
+            # row = changes["added_rows"][addedRowPosition]
+            name = row.get('name', '')
+            m = row.get('m', 0)
+            q = row.get('q', 0)
+            nni_cap = row.get('nni_cap', 1.60)
+            sql_insert = f"INSERT INTO varieties (name, m, q, nni_cap) VALUES ('{name}', {m}, {q}, {nni_cap})"
+            db.execute(sql_insert)
+            _cur = db.conn.execute("SELECT last_insert_rowid()")
+            added_ids.append(_cur.fetchone()[0])
+        st.success(f"Varietà con ID {', '.join(map(str, added_ids))} aggiunt{'a' if len(added_ids) == 1 else 'e'} correttamente.")
+        pass
+
+    if changes["deleted_rows"]:
+        _logger.info("#### Deleted Rows:\n")
+        _logger.info(changes["deleted_rows"])
+        db = getInstance()
+        removed_ids = []
+        for deletedRowPosition in changes["deleted_rows"]:
+            id = serverPdDf["id"].iloc[deletedRowPosition]
+            sql_delete = f"DELETE FROM varieties WHERE id = {id}"
+            db.execute(sql_delete)
+            removed_ids.append(id)
+        st.success(f"Varietà con ID {', '.join(map(str, removed_ids))} eliminat{'a' if len(removed_ids) == 1 else 'e'} correttamente.")
         pass
 
 def persistChanges(*args, **kwargs):
