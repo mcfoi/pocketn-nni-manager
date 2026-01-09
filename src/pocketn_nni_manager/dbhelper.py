@@ -76,10 +76,9 @@ class DbHelper:
     def execute(self, sql_update):
         _logger = logging.getLogger("NNIManager")
         cursor = self.conn.cursor()
-        cur = cursor.execute(sql_update)
+        cursor.execute(sql_update)
         self.conn.commit()
-        cursor.close()
-        _logger.info(f"Executed SQL result: {cur.fetchone()[0]}")
+        return cursor
 
     def close(self):
         self.conn.commit()

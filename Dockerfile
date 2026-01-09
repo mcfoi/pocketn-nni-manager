@@ -18,11 +18,14 @@ ENV STREAMLIT_DATA_DIR=/usr/src/app
 # Copy WHEEL file into image and install it
 COPY dist/* .
 COPY requirements.txt .
-RUN pip install --no-cache-dir -r requirements.txt
+# RUN pip install --no-cache-dir -r requirements.txt
+RUN pip install -r requirements.txt
 
 # Copy Streamlit startup script used by ENTRYPOINT
 COPY streamlit_app.py ./
-COPY ./datadir ${STREAMLIT_DATA_DIR}
+COPY ./datadir/*.csv ${STREAMLIT_DATA_DIR}
+# COPY ./datadir/*.db ${STREAMLIT_DATA_DIR}
+# COPY ./datadir/*.md ${STREAMLIT_DATA_DIR}
 
 EXPOSE 8501
 

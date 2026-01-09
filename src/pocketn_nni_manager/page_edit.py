@@ -63,8 +63,9 @@ def salvaModifiche(**kwargs):
                     set_clause += f"{edited_value}"
                 set_spacer = ", "
             sql_update = f"UPDATE varieties SET {set_clause} WHERE id = {id}"
-            db.execute(sql_update)
+            _cur = db.execute(sql_update)
             updated_ids.append(id)
+            _cur.close()
         st.success(f"Varietà con ID {', '.join(map(str, updated_ids))} aggiornat{'a' if len(updated_ids) == 1 else 'e'} correttamente.")
 
     if changes["added_rows"]:
@@ -78,9 +79,11 @@ def salvaModifiche(**kwargs):
             q = row.get('q', 0)
             nni_cap = row.get('nni_cap', 1.60)
             sql_insert = f"INSERT INTO varieties (name, m, q, nni_cap) VALUES ('{name}', {m}, {q}, {nni_cap})"
-            db.execute(sql_insert)
-            _cur = db.conn.execute("SELECT last_insert_rowid()")
+            _cur = db.execute(sql_insert)
+            _cur.close()
+            _cur = db.execute("SELECT last_insert_rowid()")
             added_ids.append(_cur.fetchone()[0])
+            _cur.close()
         st.success(f"Varietà con ID {', '.join(map(str, added_ids))} aggiunt{'a' if len(added_ids) == 1 else 'e'} correttamente.")
 
     if changes["deleted_rows"]:
@@ -91,11 +94,12 @@ def salvaModifiche(**kwargs):
         for deletedRowPosition in changes["deleted_rows"]:
             id = serverPdDf["id"].iloc[deletedRowPosition]
             sql_delete = f"DELETE FROM varieties WHERE id = {id}"
-            db.execute(sql_delete)
+            _cur = db.execute(sql_delete)
             removed_ids.append(id)
+            _cur.close()
         st.success(f"Varietà con ID {', '.join(map(str, removed_ids))} eliminat{'a' if len(removed_ids) == 1 else 'e'} correttamente.")
 
-def onEditorDataChanged(**kwargs):
+def onEditorDataChanged(*args, **kwargs):
     _logger = kwargs["logger"]
     serverPdDf = kwargs["serverPdDf"]
     _logger.info(f"ORIGINAL Dataframe data in persistChanges() is\n{serverPdDf}")

@@ -33,13 +33,13 @@ from streamlit.runtime.scriptrunner import get_script_run_ctx
 from streamlit.source_util import PageInfo
 
 from pocketn_nni_manager import __version__, page_login, page_list, page_edit
+from pocketn_nni_manager.dbhelper import DbHelper
 
 __author__ = "Marco Foi"
 __copyright__ = "Marco Foi"
 __license__ = "MIT"
 
 _logger = logging.getLogger("NNIManager")
-
 
 # ---- Python API ----
 # The functions defined in this section can be imported by users in their
@@ -57,11 +57,9 @@ _logger = logging.getLogger("NNIManager")
 
 def parse_args(args):
     """Parse command line parameters
-
     Args:
       args (List[str]): command line parameters as list of strings
           (for example  ``["--help"]``).
-
     Returns:
       :obj:`argparse.Namespace`: command line parameters namespace
     """
@@ -93,7 +91,6 @@ def parse_args(args):
 
 def setup_logging(loglevel):
     """Setup basic logging
-
     Args:
       loglevel (int): minimum loglevel for emitting messages
     """
@@ -101,10 +98,6 @@ def setup_logging(loglevel):
     logging.basicConfig(
         level=loglevel, stream=sys.stdout, format=logformat, datefmt="%Y-%m-%d %H:%M:%S"
     )
-
-def runApp():
-    """ Calls :func:`mainApp`"""
-    mainApp()
 
 def get_current_page_name():
     ctx = get_script_run_ctx()
@@ -114,6 +107,34 @@ def get_current_page_name():
     page_name = Path(ctx.main_script_path).stem
     _logger.info(f"Current page name: {page_name}")
     return page_name
+
+def restoreSession():
+    dataDir = os.getenv("STREAMLIT_DATA_DIR", "/tmp")
+    session_file = f'{dataDir}/session_state.json'
+    if (Path(session_file).exists()):
+        with open(session_file, 'r') as f:
+            import json
+            session_data = json.load(f)
+            if (session_data != {}):
+                _logger.info(f"Session state loaded from {session_file}")
+                for key in session_data:
+                    st.session_state[key] = session_data[key]
+        _logger.info(f"Session state restored from {session_file}")
+
+def saveSession():
+    dataDir = os.getenv("STREAMLIT_DATA_DIR", "/tmp")
+    session_file = f'{dataDir}/session_state.json'
+    with open(session_file, 'w') as f:
+        import json
+        json.dump(dict(st.session_state), f)
+    _logger.info(f"Session state saved to {session_file}")
+
+def deleteSession():
+    dataDir = os.getenv("STREAMLIT_DATA_DIR", "/tmp")
+    session_file = f'{dataDir}/session_state.json'
+    if (Path(session_file).exists()):
+        Path(session_file).unlink()
+        _logger.info(f"Session state file {session_file} deleted.")
 
 def loginPage():
     st.title('PocketN - NNI Manager')
@@ -125,6 +146,7 @@ def loginPage():
             if username == "test" and password == "test":
                 st.session_state.logged_in = True
                 st.success("Logged in successfully!")
+                saveSession()
                 sleep(0.5)
                 st.switch_page(list_varieties_page)
             else:
@@ -143,12 +165,9 @@ def logout():
     st.session_state.logged_in = False
     st.info("Logged out successfully!")
     _logger.info(f"Logged out successfully!")
+    deleteSession()
     sleep(1.5)
     st.switch_page(login_page)
-
-def setup_db():
-    from pocketn_nni_manager.dbhelper import DbHelper
-    DbHelper.createDb()
 
 
 
@@ -158,17 +177,22 @@ login_page = st.Page(loginPage, title="NNI Manager - Login", icon="🌾", defaul
 
 
 
-def mainApp():
+def runApp():
+    # Setup LOGGING
     setup_logging(logging.INFO)
-    setup_db()
+    # Setup DB
+    DbHelper.createDb()
 
     dataDir = os.getenv("STREAMLIT_DATA_DIR", "/tmp")
+    _logger.info(f"DATA DIR is {dataDir}")
 
     st.set_page_config(layout="wide")
     pages = []
     pg = None
 
-    st.markdown("Scarica: [varieties.csv](app/static/varieties.csv)")
+    # Show link to download static file
+    # st.markdown("Scarica: [varieties.csv](app/static/varieties.csv)")
+    restoreSession()
 
     with st.sidebar:
         _logger.info(f"Creating Navigation menu")

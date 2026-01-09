@@ -29,18 +29,19 @@ def listPage():
     # varList: list[Varietà] = db.getVarieties()
     # varCur = db.getVarietiesCursor()
     varDf = db.getVarietiesPdDataframe()
-    x_range = range(0, 3)
+    x_range = range(0, 5)
     varDf['grafco'] = varDf.apply(lambda row: f(x_range, row.m, row.q), axis=1)
     st.dataframe(
         varDf,
         key="varieties_table",
+        row_height=100,
         column_config={
             "id": "ID Varietà",
             "name": "Nome Varietà",
             "m": "Parametro m",
             "q": "Parametro q",
             "nni_cap": "Limite NNI",
-            "grafco": st.column_config.LineChartColumn("Curva di calibrazione", y_min=0, y_max=10, width="small"),
+            "grafco": st.column_config.LineChartColumn("Curva di calibrazione", y_min=-5, y_max=5, width=10),
         }
         )
 
